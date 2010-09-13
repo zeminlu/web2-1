@@ -2,7 +2,9 @@ package controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -27,7 +29,6 @@ public class Api extends HttpServlet{
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		super.doGet(req, resp);
 
 		String requestFormat = req.getHeader("Accept");
 		String format;
@@ -79,8 +80,61 @@ public class Api extends HttpServlet{
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		super.doPut(req, resp);
+		String requestFormat = req.getHeader("Accept");
+		String format;
+		if( !requestFormat.contains("application/json") &&
+				!requestFormat.contains("application/xml")){
+			// retorno un error.
+			return;
+		} else {
+			format = requestFormat.contains("application/json")? "json":"xml";
+		}
+		
+		String baseUrl = req.getContextPath()+"/Api";
+		String reqUrl = req.getRequestURI();
+		PrintWriter out = resp.getWriter();
+		if( reqUrl.equals(baseUrl + "/clientes/cliente") ){
+			String name = req.getParameter("name");
+			String address = req.getParameter("address");
+			if(name == null || address == null){
+				// lanzo error: IllegalArgument
+				return;
+			}
+			Client client = new Client(name,address);
+			List<Client> l = new ArrayList<Client>();
+			l.add(client);
+			clientMan.addClient(client);
+			if(format.equals("xml")){
+				responseXml(l, "clientes", out);
+			} else {
+				responseJson(l, out);
+			}
+		} else if( reqUrl.equals(baseUrl + "/pedidos/pedido") ){
+			Integer clientId, pizzaId, cant;
+			try {
+				clientId = Integer.valueOf(req.getParameter("client_id"));
+				pizzaId = Integer.valueOf(req.getParameter("pizza_id"));
+				cant = Integer.valueOf(req.getParameter("cant"));
+			} catch( NumberFormatException e){
+				// Lanzo un error: IllegalArgument
+				return;
+			}
+
+			Client client = clientMan.getClient(clientId);
+			Pizza pizza = pizzaMan.getPizza(pizzaId);
+			Order order = new Order(client, pizza, cant);
+			orderMan.addOrder(order);
+			List<Order> l = new ArrayList<Order>();
+			l.add(order);
+			if(format.equals("xml")){
+				responseXml(l, "pedidos", out);
+			} else {
+				responseJson(l, out);
+			}
+		} else {
+			// lanzo un error: NotFound
+		}
+		
 	}
 	
 	@Override
