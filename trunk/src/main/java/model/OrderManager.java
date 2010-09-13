@@ -14,6 +14,10 @@ public class OrderManager {
 		return instance;
 	}
 
+	public Iterable<Order> getAll(){
+		return orders;
+	}
+	
 	public Order getOrder(int id){
 		for (Order each : orders){
 			if (each.getId() == id){

@@ -35,4 +35,8 @@ public class PizzaManager {
 		pizzas.remove(pizza);
 		return true;
 	}
+	
+	public Iterable<Pizza> getAll(){
+		return pizzas;
+	}
 }

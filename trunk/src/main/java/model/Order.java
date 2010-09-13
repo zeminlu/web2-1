@@ -1,7 +1,7 @@
 package model;
 
 
-public class Order {
+public class Order implements Printable{
 	private int id;
 	private Client client;
 	private Pizza pizza;
@@ -64,5 +64,29 @@ public class Order {
 		if (id != other.id)
 			return false;
 		return true;
+	}
+	
+	public double getValue(){
+		return pizza.getPrice() * qty;
+	}
+	
+	public String toXml(){
+		StringBuffer xml = new StringBuffer("<pedido id='"+ id +"'>");
+		xml.append("<cliente>"+client.getId()+"</cliente>");
+		xml.append("<pizza>"+pizza.getId()+"</pizza>");
+		xml.append("<cantidad>"+ qty +"</cantidad>");
+		xml.append("<valor>"+ getValue() +"</valor>");
+		xml.append("</pedido>");
+		return xml.toString();
+	}
+
+	@Override
+	public String toJson() {
+		StringBuffer json = new StringBuffer("{ id:" + id);
+		json.append(",cliente:" + client.getId());
+		json.append(",pizza:" + pizza.getId());
+		json.append(",cantidad:" + qty);
+		json.append(",valor:" + getValue() + "}");
+		return json.toString();
 	}
 }

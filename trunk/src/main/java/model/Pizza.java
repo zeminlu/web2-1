@@ -1,6 +1,6 @@
 package model;
 
-public class Pizza {
+public class Pizza implements Printable{
 	private int id;
 	private String name;
 	private double price;
@@ -49,6 +49,22 @@ public class Pizza {
 		if (id != other.id)
 			return false;
 		return true;
+	}
+	
+	@Override
+	public String toJson() {
+		StringBuffer json = new StringBuffer("{ id:" + id);
+		json.append(",nombre:" + name);
+		json.append(",precio:" + price + "}");
+		return json.toString();
+	}
+	@Override
+	public String toXml() {
+		StringBuffer xml = new StringBuffer("<pizza id='"+ id +"'>");
+		xml.append("<nombre>"+ name +"</cliente>");
+		xml.append("<precio>"+ price +"</pizza>");
+		xml.append("</pizza>");
+		return xml.toString();
 	}
 	
 }
