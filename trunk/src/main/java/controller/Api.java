@@ -34,8 +34,7 @@ public class Api extends HttpServlet{
 		String format;
 		if( !requestFormat.contains("application/json") &&
 				!requestFormat.contains("application/xml")){
-			// retorno un error.
-			return;
+			throw new InvalidHeaderException();
 		} else {
 			format = requestFormat.contains("application/json")? "json":"xml";
 		}
@@ -65,7 +64,7 @@ public class Api extends HttpServlet{
 				responseJson(pizzas, out);
 			}
 		} else {
-			// retornamos un error.
+			throw new NotFoundException();
 		}
 			
 	}
@@ -84,8 +83,7 @@ public class Api extends HttpServlet{
 		String format;
 		if( !requestFormat.contains("application/json") &&
 				!requestFormat.contains("application/xml")){
-			// retorno un error.
-			return;
+			throw new InvalidHeaderException();
 		} else {
 			format = requestFormat.contains("application/json")? "json":"xml";
 		}
@@ -97,8 +95,7 @@ public class Api extends HttpServlet{
 			String name = req.getParameter("name");
 			String address = req.getParameter("address");
 			if(name == null || address == null){
-				// lanzo error: IllegalArgument
-				return;
+				throw new IllegalArgumentException();
 			}
 			Client client = new Client(name,address);
 			List<Client> l = new ArrayList<Client>();
@@ -116,8 +113,7 @@ public class Api extends HttpServlet{
 				pizzaId = Integer.valueOf(req.getParameter("pizza_id"));
 				cant = Integer.valueOf(req.getParameter("cant"));
 			} catch( NumberFormatException e){
-				// Lanzo un error: IllegalArgument
-				return;
+				throw new IllegalArgumentException();
 			}
 
 			Client client = clientMan.getClient(clientId);
@@ -132,7 +128,7 @@ public class Api extends HttpServlet{
 				responseJson(l, out);
 			}
 		} else {
-			// lanzo un error: NotFound
+			throw new NotFoundException();
 		}
 		
 	}
