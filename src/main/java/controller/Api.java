@@ -72,8 +72,92 @@ public class Api extends HttpServlet{
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		super.doPost(req, resp);
+		String requestFormat = req.getHeader("Accept");
+		String format;
+		if( !requestFormat.contains("application/json") &&
+				!requestFormat.contains("application/xml")){
+			throw new InvalidHeaderException();
+		} else {
+			format = requestFormat.contains("application/json")? "json":"xml";
+		}
+
+		String baseUrl = req.getContextPath()+"/Api";
+		String reqUrl = req.getRequestURI();
+		PrintWriter out = resp.getWriter();
+		
+		String parts[] = reqUrl.split("/");
+		int len = parts.length;
+		String aux = "";
+		
+		for (int i = 0 ; i < len - 1 ; ++i){
+			aux += parts[i] + "/";
+		}
+		
+		Integer id;
+		
+		if( aux.equals(baseUrl + "clientes/cliente/") ){
+			id = Integer.valueOf(req.getParameter("id"));
+			String name = req.getParameter("name");
+			String address = req.getParameter("address");
+			try {
+				id = Integer.valueOf(parts[len - 1]);
+			} catch( NumberFormatException e){
+				throw new IllegalArgumentException();
+			}
+
+			if(id == null || name == null || address == null){
+				throw new IllegalArgumentException();
+			}
+	
+			Client client = clientMan.getClient(id);
+			client.setAddress(address);
+			client.setName(name);
+			List<Client> l = new ArrayList<Client>();
+			l.add(client);
+			if (format.equals("xml")){
+				responseXml(l, "clientes", out);
+			} else {
+				responseJson(l, out);
+			}
+		} else if( aux.equals(baseUrl + "/pedidos/pedido/") ){
+			Integer clientId, pizzaId;
+			try {
+				id = Integer.valueOf(parts[len - 1]);
+				clientId = Integer.valueOf(req.getParameter("client_id"));
+				pizzaId = Integer.valueOf(req.getParameter("pizza_id"));
+			} catch( NumberFormatException e){
+				throw new IllegalArgumentException();
+			}
+			
+			try {
+				id = Integer.valueOf(parts[len - 1]);
+			} catch( NumberFormatException e){
+				throw new IllegalArgumentException();
+			}
+
+			if(id == null || clientId == null || pizzaId == null){
+				throw new IllegalArgumentException();
+			}
+
+			Order order = orderMan.getOrder(id);
+			Client client = clientMan.getClient(clientId);
+			Pizza pizza = pizzaMan.getPizza(pizzaId);
+			if (order == null || client == null || pizza == null){
+				throw new IllegalArgumentException();
+			}
+			
+			order.setClient(client);
+			order.setPizza(pizza);
+			List<Order> l = new ArrayList<Order>();
+			l.add(order);
+			if(format.equals("xml")){
+				responseXml(l, "pedidos", out);
+			} else {
+				responseJson(l, out);
+			}
+		} else {
+			throw new NotFoundException();
+		}
 	}
 	
 	@Override
@@ -130,14 +214,52 @@ public class Api extends HttpServlet{
 		} else {
 			throw new NotFoundException();
 		}
-		
 	}
 	
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		super.doDelete(req, resp);
+		String baseUrl = req.getContextPath()+"/Api";
+		String reqUrl = req.getRequestURI();
+		String parts[] = reqUrl.split("/");
+		int len = parts.length;
+		String aux = "";
+		
+		for (int i = 0 ; i < len - 1 ; ++i){
+			aux += parts[i] + "/";
+		}
+		
+		Integer id;
+		
+		if( aux.equals(baseUrl + "clientes/cliente/") ){
+			try {
+				id = Integer.valueOf(parts[len - 1]);
+			} catch( NumberFormatException e){
+				throw new IllegalArgumentException();
+			}
+
+			if (id == null){
+				throw new IllegalArgumentException();
+			}
+
+			Client client = clientMan.getClient(id);
+			clientMan.deleteClient(client);
+		} else if( aux.equals(baseUrl + "/pedidos/pedido/") ){			
+			try {
+				id = Integer.valueOf(parts[len - 1]);
+			} catch( NumberFormatException e){
+				throw new IllegalArgumentException();
+			}
+
+			if (id == null){
+				throw new IllegalArgumentException();
+			}
+			
+			Order order = orderMan.getOrder(id);
+			orderMan.deleteOrder(order);
+		} else {
+			throw new NotFoundException();
+		}
 	}
 	
 	private void responseXml(Iterable<? extends Printable> iterator, String root, PrintWriter out){
