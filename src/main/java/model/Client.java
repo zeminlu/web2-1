@@ -1,6 +1,6 @@
 package model;
 
-public class Client {
+public class Client implements Printable{
 	private int id;
 	private String name;
 	private String address;
@@ -57,5 +57,21 @@ public class Client {
 		if (id != other.id)
 			return false;
 		return true;
+	}
+	
+	public String toXml(){
+		StringBuffer xml = new StringBuffer("<cliente id='"+ id +"'>");
+		xml.append("<nombre>"+ name +"</nombre>");
+		xml.append("<direccion>"+ address +"</direccion>");
+		xml.append("</cliente>");
+		return xml.toString();
+	}
+
+	@Override
+	public String toJson() {
+		StringBuffer json = new StringBuffer("{ id:" + id);
+		json.append(",nombre:" + name);
+		json.append(",direccion:" + address + "}");
+		return json.toString();
 	}
 }

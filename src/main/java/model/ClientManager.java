@@ -34,4 +34,8 @@ public class ClientManager {
 		}
 		return null;
 	}
+	
+	public Iterable<Client> getAll(){
+		return clients;
+	}
 }
