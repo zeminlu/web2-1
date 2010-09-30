@@ -263,6 +263,7 @@ public class Api extends HttpServlet{
 	}
 	
 	private void responseXml(Iterable<? extends Printable> iterator, String root, PrintWriter out){
+		out.print("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 		out.print("<"+root+">");
 		for(Printable each: iterator){
 			out.print(each.toXml());
